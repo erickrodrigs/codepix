@@ -7,6 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Bank ...
 type Bank struct {
 	Base `valid:"required"`
 	Code string `json:"code" valid:"notnull"`
@@ -23,6 +24,7 @@ func (bank *Bank) isValid() error {
 	return nil
 }
 
+// NewBank ...
 func NewBank(code string, name string) (*Bank, error) {
 	bank := Bank{
 		Code: code,
