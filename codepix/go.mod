@@ -10,4 +10,5 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.9.0
 	gorm.io/driver/sqlite v1.1.4
+	github.com/stretchr/testify v1.7.0
 )
