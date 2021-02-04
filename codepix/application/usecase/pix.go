@@ -12,7 +12,7 @@ type PixUseCase struct {
 }
 
 // RegisterKey ...
-func (useCase *PixUseCase) RegisterKey(key string, kind, string, accountID string) (*model.PixKey, error) {
+func (useCase *PixUseCase) RegisterKey(key string, kind string, accountID string) (*model.PixKey, error) {
 	account, err := useCase.PixKeyRepository.FindAccount(accountID)
 
 	if err != nil {
