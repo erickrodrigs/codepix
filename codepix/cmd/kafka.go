@@ -34,7 +34,7 @@ var kafkaCmd = &cobra.Command{
 		deliveryChan := make(chan ckafka.Event)
 		producer := kafka.NewKafkaProducer()
 
-		kafka.Publish("Ola consumer", "teste", producer, deliveryChan)
+		// kafka.Publish("Ola consumer", "teste", producer, deliveryChan)
 		go kafka.DeliveryReport(deliveryChan)
 
 		kafkaProcessor := kafka.NewKafkaProcessor(database, producer, deliveryChan)
