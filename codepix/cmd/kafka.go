@@ -17,8 +17,11 @@ limitations under the License.
 */
 
 import (
+	"os"
+
 	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/erickrodrigs/codepix/codepix-go/application/kafka"
+	"github.com/erickrodrigs/codepix/codepix-go/infrastructure/db"
 	"github.com/spf13/cobra"
 )
 
@@ -27,11 +30,15 @@ var kafkaCmd = &cobra.Command{
 	Use:   "kafka",
 	Short: "Start consuming transaction using Apache Kafka",
 	Run: func(cmd *cobra.Command, args []string) {
+		database := db.ConnectDB(os.Getenv("env"))
 		deliveryChan := make(chan ckafka.Event)
 		producer := kafka.NewKafkaProducer()
 
-		kafka.Publish("Ola kafka", "teste", producer, deliveryChan)
-		kafka.DeliveryReport(deliveryChan)
+		kafka.Publish("Ola consumer", "teste", producer, deliveryChan)
+		go kafka.DeliveryReport(deliveryChan)
+
+		kafkaProcessor := kafka.NewKafkaProcessor(database, producer, deliveryChan)
+		kafkaProcessor.Consume()
 	},
 }
 
