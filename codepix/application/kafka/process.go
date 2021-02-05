@@ -4,6 +4,9 @@ import (
 	"fmt"
 
 	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
+	appmodel "github.com/erickrodrigs/codepix/codepix-go/application/appmodel"
+	"github.com/erickrodrigs/codepix/codepix-go/application/factory"
+	"github.com/erickrodrigs/codepix/codepix-go/domain/model"
 	"github.com/jinzhu/gorm"
 )
 
@@ -47,6 +50,61 @@ func (kp *MyKafkaProcessor) Consume() {
 
 		if err == nil {
 			fmt.Println(string(msg.Value))
+			kp.processMessage(msg)
 		}
 	}
+}
+
+func (kp *MyKafkaProcessor) processMessage(msg *ckafka.Message) {
+	transactionsTopic := "transactions"
+	transactionConfirmationTopic := "transaction_confirmation"
+
+	switch topic := *msg.TopicPartition.Topic; topic {
+	case transactionsTopic:
+		kp.processTransaction(msg)
+	case transactionConfirmationTopic:
+	default:
+		fmt.Println("not a valid topic", string(msg.Value))
+	}
+}
+
+func (kp *MyKafkaProcessor) processTransaction(msg *ckafka.Message) error {
+	transaction := appmodel.NewTransaction()
+	err := transaction.ParseJSON(msg.Value)
+
+	if err != nil {
+		return err
+	}
+
+	transactionUseCase := factory.TransactionUseCaseFactory(kp.Database)
+
+	createdTransaction, err := transactionUseCase.Register(
+		transaction.AccountID,
+		transaction.Amount,
+		transaction.PixKeyTo,
+		transaction.PixKeyKindTo,
+		transaction.Description,
+	)
+
+	if err != nil {
+		fmt.Println("error registering transaction", err)
+		return err
+	}
+
+	topic := "bank" + createdTransaction.PixKeyTo.Account.Bank.Code
+	transaction.ID = createdTransaction.ID
+	transaction.Status = model.TransactionPending
+	transactionJSON, err := transaction.ToJSON()
+
+	if err != nil {
+		return err
+	}
+
+	err = Publish(string(transactionJSON), topic, kp.Producer, kp.DeliveryChan)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

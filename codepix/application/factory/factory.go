@@ -6,7 +6,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func transactionUseCaseFactory(database *gorm.DB) usecase.TransactionUseCase {
+// TransactionUseCaseFactory ...
+func TransactionUseCaseFactory(database *gorm.DB) usecase.TransactionUseCase {
 	pixRepository := repository.PixKeyRepositoryDb{Db: database}
 	transactionRepository := repository.TransactionRepositoryDb{Db: database}
 
