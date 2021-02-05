@@ -48,6 +48,23 @@ func (transaction *Transaction) ParseJSON(data []byte) error {
 	return nil
 }
 
+// ToJSON ...
+func (transaction *Transaction) ToJSON() ([]byte, error) {
+	err := transaction.isValid()
+
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := json.Marshal(transaction)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func NewTransaction() *Transaction {
 	return &Transaction{}
 }

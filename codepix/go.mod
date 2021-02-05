@@ -18,4 +18,5 @@ require (
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gorm.io/driver/sqlite v1.1.4
 	github.com/confluentinc/confluent-kafka-go v1.5.2
+	github.com/go-playground/validator/v10 v10.4.1
 )
