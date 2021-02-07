@@ -12,6 +12,7 @@ import { PixKey } from './models/pix-key.model';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { Transaction } from './models/transaction.model';
+import { TransactionController } from './controllers/transaction/transaction.controller';
 
 @Module({
   imports: [
@@ -38,8 +39,32 @@ import { Transaction } from './models/transaction.model';
         },
       },
     ]),
+    ClientsModule.register([
+      {
+        name: 'TRANSACTION_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: process.env.KAFKA_CLIENT_ID,
+            brokers: [process.env.KAFKA_BROKER],
+          },
+          consumer: {
+            groupId:
+              !process.env.KAFKA_CONSUMER_GROUP_ID ||
+              process.env.KAFKA_CONSUMER_GROUP_ID === ''
+                ? 'my-consumer-' + Math.random()
+                : process.env.KAFKA_CONSUMER_GROUP_ID,
+          },
+        },
+      },
+    ]),
   ],
-  controllers: [AppController, BankAccountController, PixKeyController],
+  controllers: [
+    AppController,
+    BankAccountController,
+    PixKeyController,
+    TransactionController,
+  ],
   providers: [AppService, FixturesCommand],
 })
 export class AppModule {}
