@@ -2,11 +2,14 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Inject,
   InternalServerErrorException,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   UnprocessableEntityException,
   ValidationPipe,
 } from '@nestjs/common';
@@ -96,5 +99,21 @@ export class PixKeyController {
   }
 
   @Get('exists')
-  exists() {}
+  @HttpCode(204)
+  async exists(
+    @Query(new ValidationPipe({ errorHttpStatusCode: 422 }))
+    params: PixKeyDto,
+  ) {
+    const pixService: PixService = this.client.getService('PixService');
+
+    try {
+      await pixService.find(params).toPromise();
+    } catch (err) {
+      if (err.details === 'no key was found') {
+        throw new NotFoundException(err.details);
+      }
+
+      throw new InternalServerErrorException('Server not available');
+    }
+  }
 }
