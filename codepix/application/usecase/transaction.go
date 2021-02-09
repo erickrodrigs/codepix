@@ -14,20 +14,20 @@ type TransactionUseCase struct {
 }
 
 // Register ...
-func (useCase *TransactionUseCase) Register(accountID string, amount float64, pixKeyTo string, pixKeyKindTo string, description string) (*model.Transaction, error) {
+func (useCase *TransactionUseCase) Register(accountID string, amount float64, pixKeyto string, pixKeyKindTo string, description string, id string) (*model.Transaction, error) {
 	account, err := useCase.PixRepository.FindAccount(accountID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	pixKey, err := useCase.PixRepository.FindKeyByKind(pixKeyTo, pixKeyKindTo)
+	pixKey, err := useCase.PixRepository.FindKeyByKind(pixKeyto, pixKeyKindTo)
 
 	if err != nil {
 		return nil, err
 	}
 
-	transaction, err := model.NewTransaction(account, amount, pixKey, description)
+	transaction, err := model.NewTransaction(account, amount, pixKey, description, id)
 
 	if err != nil {
 		return nil, err

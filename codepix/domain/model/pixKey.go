@@ -17,14 +17,18 @@ type PixKeyRepositoryInterface interface {
 	FindAccount(id string) (*Account, error)
 }
 
+func init() {
+	govalidator.SetFieldsRequiredByDefault(true)
+}
+
 // PixKey ...
 type PixKey struct {
 	Base      `valid:"required"`
-	Kind      string   `json:"kind" valid:"notnull"`
-	Key       string   `json:"key" valid:"notnull"`
+	Kind      string   `json:"kind" gorm:"type:varchar(20)" valid:"notnull"`
+	Key       string   `json:"key" gorm:"type:varchar(255)" valid:"notnull"`
 	AccountID string   `gorm:"column:account_id;type:uuid;not null" valid:"-"`
 	Account   *Account `valid:"-"`
-	Status    string   `json:"status" valid:"notnull"`
+	Status    string   `json:"status" gorm:"type:varchar(20)" valid:"notnull"`
 }
 
 func (pixKey *PixKey) isValid() error {
@@ -48,10 +52,11 @@ func (pixKey *PixKey) isValid() error {
 // NewPixKey ...
 func NewPixKey(kind string, key string, account *Account) (*PixKey, error) {
 	pixKey := PixKey{
-		Kind:    kind,
-		Key:     key,
-		Account: account,
-		Status:  "active",
+		Kind:      kind,
+		Key:       key,
+		Account:   account,
+		AccountID: account.ID,
+		Status:    "active",
 	}
 
 	pixKey.ID = uuid.NewV4().String()

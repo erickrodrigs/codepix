@@ -15,6 +15,10 @@ type Bank struct {
 	Accounts []*Account `gorm:"ForeignKey:BankID" valid:"-"`
 }
 
+func init() {
+	govalidator.SetFieldsRequiredByDefault(true)
+}
+
 func (bank *Bank) isValid() error {
 	_, err := govalidator.ValidateStruct(bank)
 
